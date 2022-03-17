@@ -5,20 +5,25 @@ import FriendList from "../component/FriendList";
 import { addFriend, setAgeLimit, setShowLimit } from "../state";
 import NumberSelect from "../component/NumberSelect";
 import { MAX_AGE_LIMIT, MAX_SHOW_LIMIT } from "../common";
+import {
+  getAgeLimit,
+  getFriendsWithAgeLimit,
+  getFriendsWithAgeShowLimit,
+  getShowLimit,
+} from "../state/selector";
 
 export default function FriendMain() {
-  const friends = useSelector((state) => state.friend.friends);
-  const ageLimit = useSelector((state) => state.friend.ageLimit);
-  const showLimit = useSelector((state) => state.friend.showLimit);
-
-  //shallowEqual은 얕은 복사를 진행해버리게 한다.
+  // useSelector 함수를 두 가지 방식으로 구현함.
+  // 1. 내가 사용하는 최적화 진행 된 방식
+  const ageLimit = useSelector(getAgeLimit);
+  const showLimit = useSelector(getShowLimit);
+  // 2. shallowEqual을 통한 배열 관리 방식
+  // shallowEqual은 얕은 복사를 진행하게 한다.
   const [friendsWithAgeLimit, friendsWithAgeShowLimit] = useSelector(
-    (state) => {
-      const friendsWithAgeLimit = state.friend.friends.filter(
-        (item) => item.age <= ageLimit
-      );
-      return [friendsWithAgeLimit, friendsWithAgeLimit.slice(0, showLimit)];
-    },
+    (state) => [
+      getFriendsWithAgeLimit(state),
+      getFriendsWithAgeShowLimit(state),
+    ],
     shallowEqual
   );
   const dispatch = useDispatch();
@@ -37,6 +42,7 @@ export default function FriendMain() {
         options={AGE_LIMIT_OPTIONS}
         postfix="세 이하만 보기"
       />
+      <FriendList friends={friendsWithAgeLimit} />
       <NumberSelect
         onChange={(v) => dispatch(setShowLimit(v))}
         value={showLimit}
