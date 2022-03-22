@@ -19,12 +19,14 @@ export default function TimelineMain() {
   function onLike(e) {
     const id = Number(e.target.dataset.id);
     const timeline = timelines.find((item) => item.id === id);
+    console.log(timeline);
     dispatch(actions.requestLike(timeline));
   }
   return (
     <div>
       <button onClick={onAdd}>타임라인 추가</button>
       <TimelineList timelines={timelines} onLike={onLike} />
+      {isLoading && <p>전송 중...</p>}
     </div>
   );
 }
