@@ -1,4 +1,11 @@
-import { all, call, take, put, takeLeading } from "redux-saga/effects";
+import {
+  all,
+  call,
+  take,
+  put,
+  takeLeading,
+  takeLatest,
+} from "redux-saga/effects";
 import { actions, types } from "./index";
 import { callApiLike } from "../../common/api";
 
@@ -16,10 +23,10 @@ export function* fetchData(action) {
 
 export default function* () {
   //takeLeading 첫 번째 매개변수의 action이 넘어왔을 때, 두 번째 매개변수 실행
-  yield all(takeLeading(types.REQUEST_LIKE, fetchData));
+  yield all([takeLatest(types.REQUEST_LIKE, fetchData)]);
 }
 
-const a = take(types.REQUES_LIKE);
+const a = take(types.REQUEST_LIKE);
 const b = put(actions.setLoading(false));
 const c = call(callApiLike);
 console.log(a, b, c);

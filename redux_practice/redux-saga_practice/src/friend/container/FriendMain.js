@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import React from "react";
 import { getNextFriend } from "../../common/mockData";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import FriendList from "../component/FriendList";
