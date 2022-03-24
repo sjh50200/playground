@@ -1,70 +1,95 @@
-# Getting Started with Create React App
+# generator function
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+```jsx
+function* f1() {
+  console.log("f1-1");
+  yield 10;
+  console.log("f1-2");
+  yield 20;
+  console.log("f1-3");
+  return "finished";
+}
 
-## Available Scripts
+const gen = f1();
 
-In the project directory, you can run:
+console.log(gen.next());
+console.log(gen.next());
+console.log(gen.next());
+```
 
-### `npm start`
+## ⇒ gen을 호출하면 generator 객체가 반환된다.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- next()
+  ![Untitled](generator%20%2092219/Untitled.png)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## ⇒ iterator과 iterable
 
-### `npm test`
+- iterator
+  - next 메소드를 가지고 있다.
+  - next 메소드는 value와 done 속성값을 가진 객체를 반환한다.
+  - done 속성은 작업 값이 끝났을 때, 참이 된다.
+- 다음 조건을 만족하면 iterable한 객체이다.
+  - Symbol.iterator 속성값으로 함수를 가지고 있다.
+  - 해당 함수를 호출하면 반복자(iterator)를 반환한다.
+  -
+  ```jsx
+  console.log(gen[Symbol.iterator]() === gen); // true
+  ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### generator 객체는 iterator 이면서 iterable 한 객체이다!
 
-### `npm run build`
+## ⇒ 알고 보면 배열도 iterable 하다?!
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```jsx
+const arr = [10, 20, 30];
+const iter = arr[Symbol.iterator]();
+console.log(iter.next()); // {value: 10, done: false}
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## ⇒ iterable한 객체 handling 하기
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```jsx
+function* f1() {
+  yield 10;
+  yield 20;
+  yield 30;
+}
+for (const v of f1()) {
+  console.log(v);
+}
+const arr = [...f1()];
+console.log(arr); // [10, 20, 30]
+```
 
-### `npm run eject`
+- iterable 한 객체를 for of 문을 통해서 반복문을 돌릴 수 있다.
+- spread operator를 사용하여 전개시킬 수 있다.
+  - 배열을 f1() 위치에 넣어서 많이 사용하였는데, **이는 배열이 iterable 하기 때문에 가능한 것이었다.**
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## ⇒ generator 함수와 일반 함수 협력하기
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```jsx
+// redux-saga 함수 구현 부
+function* heedong() {
+  const myMsgList = [
+    "안녕 나는 희동이야",
+    "만나서 반가워",
+    "내일 영화 볼래?",
+    "시간 안되니?",
+    "내일 모레는 어때?",
+  ];
+  for (const msg of myMsgList) {
+    console.log("수지: ", yield msg);
+  }
+}
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+// saga 미들웨어 파트
+const suji = () => {
+  const myMsgList = ["", "그래 나는 수지야", "나도 반가워", "..."];
+  const gen = heedong();
+  for (const msg of myMsgList) {
+    console.log("희동: ", gen.next(msg).value);
+  }
+};
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+suji();
+```
